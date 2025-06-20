@@ -157,6 +157,13 @@ const Index = () => {
           </Button>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="py-8 text-center">
+        <p className="text-white/80 text-lg">
+          Made with ♥️ by ASH!
+        </p>
+      </footer>
     </div>
   );
 };
