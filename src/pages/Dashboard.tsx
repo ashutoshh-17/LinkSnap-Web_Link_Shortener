@@ -1,6 +1,5 @@
-
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { Link, Copy, ExternalLink, BarChart3, Plus, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +19,7 @@ const Dashboard = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   // Mock data - replace with API calls
   const [links, setLinks] = useState<ShortenedLink[]>([
@@ -38,6 +38,16 @@ const Dashboard = () => {
       createdAt: '2024-01-14'
     }
   ]);
+
+  useEffect(() => {
+    // Check if there's a URL parameter from login redirect
+    const urlParam = searchParams.get('url');
+    if (urlParam) {
+      setUrl(decodeURIComponent(urlParam));
+      // Optionally auto-shorten the URL
+      // handleShorten();
+    }
+  }, [searchParams]);
 
   const handleShorten = async () => {
     if (!url.trim()) {

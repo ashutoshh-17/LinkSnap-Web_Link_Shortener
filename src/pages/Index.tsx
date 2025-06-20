@@ -11,6 +11,9 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  // Mock authentication state - replace with actual auth logic
+  const isAuthenticated = false; // This should come from your auth context/state
+
   const handleShorten = async () => {
     if (!url.trim()) {
       toast({
@@ -21,8 +24,21 @@ const Index = () => {
       return;
     }
 
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Store the URL in localStorage so we can use it after login
+      localStorage.setItem('pendingUrl', url);
+      toast({
+        title: "Login Required",
+        description: "Please login to shorten URLs",
+      });
+      // Redirect to login page
+      window.location.href = '/login';
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate API call
+    // Simulate API call for authenticated users
     setTimeout(() => {
       setIsLoading(false);
       toast({
@@ -109,7 +125,7 @@ const Index = () => {
             </Button>
           </div>
           <p className="text-white/70 mt-4 text-sm">
-            No registration required • Free forever • Secure & fast
+            Login required to shorten URLs • Free forever • Secure & fast
           </p>
         </Card>
 

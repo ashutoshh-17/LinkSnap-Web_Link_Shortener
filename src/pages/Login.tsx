@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Link, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,16 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingUrl, setPendingUrl] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Check if there's a pending URL from the homepage
+    const storedUrl = localStorage.getItem('pendingUrl');
+    if (storedUrl) {
+      setPendingUrl(storedUrl);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +47,17 @@ const Login = () => {
         title: "Login successful!",
         description: "Welcome back to LinkSnap",
       });
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
+      
+      // Clear the pending URL from localStorage
+      localStorage.removeItem('pendingUrl');
+      
+      // If there was a pending URL, redirect to dashboard with URL, otherwise just to dashboard
+      if (pendingUrl) {
+        // You can pass the URL as a query parameter or handle it in the dashboard
+        window.location.href = `/dashboard?url=${encodeURIComponent(pendingUrl)}`;
+      } else {
+        window.location.href = '/dashboard';
+      }
     }, 1000);
   };
 
@@ -65,7 +83,15 @@ const Login = () => {
         <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-white">Welcome Back</CardTitle>
-            <p className="text-purple-100">Sign in to your account</p>
+            <p className="text-purple-100">
+              {pendingUrl ? 'Sign in to shorten your URL' : 'Sign in to your account'}
+            </p>
+            {pendingUrl && (
+              <div className="mt-2 p-3 bg-white/10 rounded-lg">
+                <p className="text-xs text-purple-200 mb-1">URL ready to shorten:</p>
+                <p className="text-sm text-white truncate">{pendingUrl}</p>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
