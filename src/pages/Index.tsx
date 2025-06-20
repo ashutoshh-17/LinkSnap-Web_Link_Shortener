@@ -29,8 +29,8 @@ const Index = () => {
       // Store the URL in localStorage so we can use it after login
       localStorage.setItem('pendingUrl', url);
       toast({
-        title: "Join LinkSnap to Continue",
-        description: "Create your free account to shorten URLs and track analytics",
+        title: "Login Required",
+        description: "Please login to shorten URLs",
       });
       // Redirect to login page
       window.location.href = '/login';
@@ -124,27 +124,9 @@ const Index = () => {
               {isLoading ? 'Shortening...' : 'Shorten Now'}
             </Button>
           </div>
-          <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10">
-            <p className="text-white font-medium mb-2">🎉 Join LinkSnap to unlock amazing features:</p>
-            <div className="grid md:grid-cols-2 gap-2 text-sm text-purple-100">
-              <div className="flex items-center">
-                <BarChart3 className="h-4 w-4 mr-2 text-purple-300" />
-                Track clicks & analytics
-              </div>
-              <div className="flex items-center">
-                <Copy className="h-4 w-4 mr-2 text-purple-300" />
-                View all your shortened links
-              </div>
-              <div className="flex items-center">
-                <Shield className="h-4 w-4 mr-2 text-purple-300" />
-                Secure link management
-              </div>
-              <div className="flex items-center">
-                <Zap className="h-4 w-4 mr-2 text-purple-300" />
-                Lightning fast shortening
-              </div>
-            </div>
-          </div>
+          <p className="text-white/70 mt-4 text-sm">
+            Login required to shorten URLs • Free forever • Secure & fast
+          </p>
         </Card>
 
         {/* Features */}
