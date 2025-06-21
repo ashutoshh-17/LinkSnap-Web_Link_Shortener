@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Link, Eye, EyeOff } from 'lucide-react';
@@ -7,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -17,9 +17,9 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [pendingUrl, setPendingUrl] = useState('');
   const { toast } = useToast();
+  const { login } = useAuth();
 
   useEffect(() => {
-    // Check if there's a pending URL from the homepage
     const storedUrl = localStorage.getItem('pendingUrl');
     if (storedUrl) {
       setPendingUrl(storedUrl);
@@ -40,25 +40,29 @@ const Login = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    const success = await login(formData.username, formData.password);
+    setIsLoading(false);
+
+    if (success) {
       toast({
         title: "Login successful!",
         description: "Welcome back to LinkSnap",
       });
       
-      // Clear the pending URL from localStorage
       localStorage.removeItem('pendingUrl');
       
-      // If there was a pending URL, redirect to dashboard with URL, otherwise just to dashboard
       if (pendingUrl) {
-        // You can pass the URL as a query parameter or handle it in the dashboard
         window.location.href = `/dashboard?url=${encodeURIComponent(pendingUrl)}`;
       } else {
         window.location.href = '/dashboard';
       }
-    }, 1000);
+    } else {
+      toast({
+        title: "Login failed",
+        description: "Invalid username or password",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

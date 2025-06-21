@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Link, Eye, EyeOff } from 'lucide-react';
@@ -7,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +19,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,16 +53,22 @@ const Register = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    const success = await register(formData.username, formData.password, formData.email);
+    setIsLoading(false);
+
+    if (success) {
       toast({
         title: "Account created!",
-        description: "Welcome to LinkSnap! You can now start shortening links.",
+        description: "Please login with your new credentials.",
       });
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
-    }, 1000);
+      window.location.href = '/login';
+    } else {
+      toast({
+        title: "Registration failed",
+        description: "Username or email may already be taken",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

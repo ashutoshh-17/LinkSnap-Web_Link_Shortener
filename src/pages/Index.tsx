@@ -1,18 +1,17 @@
-
 import { useState } from 'react';
 import { Link, Copy, Zap, Shield, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { urlService } from '@/services/urlService';
 
 const Index = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
-  // Mock authentication state - replace with actual auth logic
-  const isAuthenticated = false; // This should come from your auth context/state
+  const { isAuthenticated, token } = useAuth();
 
   const handleShorten = async () => {
     if (!url.trim()) {
@@ -24,29 +23,35 @@ const Index = () => {
       return;
     }
 
-    // Check if user is authenticated
     if (!isAuthenticated) {
-      // Store the URL in localStorage so we can use it after login
       localStorage.setItem('pendingUrl', url);
       toast({
         title: "Login Required",
         description: "Please login to shorten URLs",
       });
-      // Redirect to login page
       window.location.href = '/login';
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call for authenticated users
-    setTimeout(() => {
-      setIsLoading(false);
+    const result = await urlService.shortenUrl(url, token!);
+    setIsLoading(false);
+
+    if (result) {
       toast({
         title: "URL Shortened!",
         description: "Your link has been shortened successfully",
       });
       setUrl('');
-    }, 1000);
+      // Redirect to dashboard to see the new link
+      window.location.href = '/dashboard';
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to shorten URL. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const features = [
@@ -77,19 +82,30 @@ const Index = () => {
             <span className="text-2xl font-bold text-white">LinkSnap</span>
           </div>
           <div className="space-x-4">
-            <Button 
-              variant="ghost" 
-              className="text-white hover:bg-white/10"
-              onClick={() => window.location.href = '/login'}
-            >
-              Login
-            </Button>
-            <Button 
-              className="bg-white text-purple-600 hover:bg-gray-100"
-              onClick={() => window.location.href = '/register'}
-            >
-              Sign Up
-            </Button>
+            {isAuthenticated ? (
+              <Button 
+                className="bg-white text-purple-600 hover:bg-gray-100"
+                onClick={() => window.location.href = '/dashboard'}
+              >
+                Dashboard
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/10"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  Login
+                </Button>
+                <Button 
+                  className="bg-white text-purple-600 hover:bg-gray-100"
+                  onClick={() => window.location.href = '/register'}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -125,7 +141,10 @@ const Index = () => {
             </Button>
           </div>
           <p className="text-white/70 mt-4 text-sm">
-            Login required to shorten URLs • Free forever • Secure & fast
+            {isAuthenticated 
+              ? "Ready to shorten • Track analytics • Manage your links" 
+              : "Login required to shorten URLs • Free forever • Secure & fast"
+            }
           </p>
         </Card>
 
@@ -151,9 +170,9 @@ const Index = () => {
           <Button 
             size="lg" 
             className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8 py-3"
-            onClick={() => window.location.href = '/register'}
+            onClick={() => window.location.href = isAuthenticated ? '/dashboard' : '/register'}
           >
-            Create Free Account
+            {isAuthenticated ? 'Go to Dashboard' : 'Create Free Account'}
           </Button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { Link, Copy, ExternalLink, BarChart3, Plus, LogOut, User } from 'lucide-react';
@@ -6,48 +7,40 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-
-interface ShortenedLink {
-  id: string;
-  originalUrl: string;
-  shortUrl: string;
-  clicks: number;
-  createdAt: string;
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { urlService, ShortenedUrl } from '@/services/urlService';
 
 const Dashboard = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [links, setLinks] = useState<ShortenedUrl[]>([]);
+  const [fetchingLinks, setFetchingLinks] = useState(true);
   const { toast } = useToast();
+  const { user, token, logout, isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
 
-  // Mock data - replace with API calls
-  const [links, setLinks] = useState<ShortenedLink[]>([
-    {
-      id: '1',
-      originalUrl: 'https://www.example.com/very-long-url-that-needs-shortening',
-      shortUrl: 'https://lnks.co/abc123',
-      clicks: 42,
-      createdAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      originalUrl: 'https://www.github.com/user/repository',
-      shortUrl: 'https://lnks.co/def456',
-      clicks: 18,
-      createdAt: '2024-01-14'
-    }
-  ]);
-
   useEffect(() => {
-    // Check if there's a URL parameter from login redirect
+    if (!isAuthenticated) {
+      window.location.href = '/login';
+      return;
+    }
+
     const urlParam = searchParams.get('url');
     if (urlParam) {
       setUrl(decodeURIComponent(urlParam));
-      // Optionally auto-shorten the URL
-      // handleShorten();
     }
-  }, [searchParams]);
+
+    fetchUserLinks();
+  }, [searchParams, isAuthenticated, token]);
+
+  const fetchUserLinks = async () => {
+    if (!token) return;
+    
+    setFetchingLinks(true);
+    const userLinks = await urlService.getMyUrls(token);
+    setLinks(userLinks);
+    setFetchingLinks(false);
+  };
 
   const handleShorten = async () => {
     if (!url.trim()) {
@@ -59,27 +52,33 @@ const Dashboard = () => {
       return;
     }
 
+    if (!token) {
+      toast({
+        title: "Authentication required",
+        description: "Please login again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
+    const result = await urlService.shortenUrl(url, token);
+    setIsLoading(false);
     
-    // Simulate API call
-    setTimeout(() => {
-      const newLink: ShortenedLink = {
-        id: Date.now().toString(),
-        originalUrl: url,
-        shortUrl: `https://lnks.co/${Math.random().toString(36).substr(2, 6)}`,
-        clicks: 0,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      
-      setLinks([newLink, ...links]);
+    if (result) {
+      setLinks([result, ...links]);
       setUrl('');
-      setIsLoading(false);
-      
       toast({
         title: "URL Shortened!",
         description: "Your link has been shortened successfully",
       });
-    }, 1000);
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to shorten URL. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const copyToClipboard = (shortUrl: string) => {
@@ -91,12 +90,17 @@ const Dashboard = () => {
   };
 
   const handleLogout = () => {
+    logout();
     toast({
       title: "Logged out",
       description: "You have been successfully logged out",
     });
     window.location.href = '/';
   };
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-blue-600">
@@ -110,7 +114,7 @@ const Dashboard = () => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-white">
               <User className="h-5 w-5" />
-              <span>Welcome back!</span>
+              <span>Welcome, {user?.username || 'User'}!</span>
             </div>
             <Button 
               variant="ghost" 
@@ -189,7 +193,11 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {links.length === 0 ? (
+            {fetchingLinks ? (
+              <div className="text-center py-12">
+                <p className="text-white/70 text-lg">Loading your links...</p>
+              </div>
+            ) : links.length === 0 ? (
               <div className="text-center py-12">
                 <Link className="h-16 w-16 text-white/50 mx-auto mb-4" />
                 <p className="text-white/70 text-lg">No links yet</p>
