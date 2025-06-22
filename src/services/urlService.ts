@@ -25,7 +25,7 @@ export const urlService = {
           id: data.id || Date.now().toString(),
           originalUrl: data.originalUrl || originalUrl,
           shortUrl: data.shortUrl || data.shortenedUrl,
-          clicks: data.clicks || 0,
+          clicks: data.clickCount || data.clicks || 0,
           createdAt: data.createdAt || new Date().toISOString().split('T')[0]
         };
       }
@@ -51,7 +51,7 @@ export const urlService = {
           id: item.id || item._id || Math.random().toString(),
           originalUrl: item.originalUrl,
           shortUrl: item.shortUrl || item.shortenedUrl,
-          clicks: item.clicks || 0,
+          clicks: item.clickCount || item.clicks || 0,
           createdAt: item.createdAt || new Date().toISOString().split('T')[0]
         }));
       }
