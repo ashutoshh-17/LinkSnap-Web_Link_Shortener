@@ -1,4 +1,6 @@
 
+import { buildApiUrl, API_CONFIG } from '@/config/api';
+
 export interface ShortenedUrl {
   id: string;
   originalUrl: string;
@@ -10,7 +12,7 @@ export interface ShortenedUrl {
 export const urlService = {
   shortenUrl: async (originalUrl: string, token: string): Promise<ShortenedUrl | null> => {
     try {
-      const response = await fetch('http://localhost:8080/api/urls/shorten', {
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SHORTEN_URL), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +40,7 @@ export const urlService = {
 
   getMyUrls: async (token: string): Promise<ShortenedUrl[]> => {
     try {
-      const response = await fetch('http://localhost:8080/api/urls/myurls', {
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.MY_URLS), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

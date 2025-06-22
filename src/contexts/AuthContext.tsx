@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { buildApiUrl, API_CONFIG } from '@/config/api';
 
 interface User {
   username: string;
@@ -47,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('http://localhost:8080/api/auth/public/login', {
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.LOGIN), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (username: string, password: string, email: string): Promise<boolean> => {
     try {
-      const response = await fetch('http://localhost:8080/api/auth/public/register', {
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.REGISTER), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
