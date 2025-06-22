@@ -26,7 +26,7 @@ export const urlService = {
         return {
           id: data.id || Date.now().toString(),
           originalUrl: data.originalUrl || originalUrl,
-          shortUrl: data.shortUrl || data.shortenedUrl,
+          shortUrl: data.shortUrl || data.shortenedUrl || `${API_CONFIG.BASE_URL}/${data.shortCode || data.code}`,
           clicks: data.clickCount || data.clicks || 0,
           createdAt: data.createdAt || new Date().toISOString().split('T')[0]
         };
@@ -52,7 +52,7 @@ export const urlService = {
         return data.map((item: any) => ({
           id: item.id || item._id || Math.random().toString(),
           originalUrl: item.originalUrl,
-          shortUrl: item.shortUrl || item.shortenedUrl,
+          shortUrl: item.shortUrl || item.shortenedUrl || `${API_CONFIG.BASE_URL}/${item.shortCode || item.code}`,
           clicks: item.clickCount || item.clicks || 0,
           createdAt: item.createdAt || new Date().toISOString().split('T')[0]
         }));
