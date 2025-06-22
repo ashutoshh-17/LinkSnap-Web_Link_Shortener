@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Link, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ const Login = () => {
   const [pendingUrl, setPendingUrl] = useState('');
   const { toast } = useToast();
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUrl = localStorage.getItem('pendingUrl');
@@ -52,9 +53,9 @@ const Login = () => {
       localStorage.removeItem('pendingUrl');
       
       if (pendingUrl) {
-        window.location.href = `/dashboard?url=${encodeURIComponent(pendingUrl)}`;
+        navigate(`/dashboard?url=${encodeURIComponent(pendingUrl)}`);
       } else {
-        window.location.href = '/dashboard';
+        navigate('/dashboard');
       }
     } else {
       toast({

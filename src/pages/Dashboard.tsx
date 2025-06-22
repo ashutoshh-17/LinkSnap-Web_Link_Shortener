@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Link as RouterLink, useSearchParams } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams, useNavigate } from 'react-router-dom';
 import { Link, Copy, ExternalLink, BarChart3, Plus, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,10 +17,11 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { user, token, logout, isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
 
@@ -31,7 +31,7 @@ const Dashboard = () => {
     }
 
     fetchUserLinks();
-  }, [searchParams, isAuthenticated, token]);
+  }, [searchParams, isAuthenticated, token, navigate]);
 
   const fetchUserLinks = async () => {
     if (!token) return;
@@ -95,7 +95,7 @@ const Dashboard = () => {
       title: "Logged out",
       description: "You have been successfully logged out",
     });
-    window.location.href = '/';
+    navigate('/');
   };
 
   if (!isAuthenticated) {

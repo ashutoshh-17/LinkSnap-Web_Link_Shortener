@@ -1,4 +1,6 @@
+
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link, Copy, Zap, Shield, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +14,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { isAuthenticated, token } = useAuth();
+  const navigate = useNavigate();
 
   const handleShorten = async () => {
     if (!url.trim()) {
@@ -29,7 +32,7 @@ const Index = () => {
         title: "Login Required",
         description: "Please login to shorten URLs",
       });
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
 
@@ -44,7 +47,7 @@ const Index = () => {
       });
       setUrl('');
       // Redirect to dashboard to see the new link
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     } else {
       toast({
         title: "Error",
@@ -85,7 +88,7 @@ const Index = () => {
             {isAuthenticated ? (
               <Button 
                 className="bg-white text-purple-600 hover:bg-gray-100"
-                onClick={() => window.location.href = '/dashboard'}
+                onClick={() => navigate('/dashboard')}
               >
                 Dashboard
               </Button>
@@ -94,13 +97,13 @@ const Index = () => {
                 <Button 
                   variant="ghost" 
                   className="text-white hover:bg-white/10"
-                  onClick={() => window.location.href = '/login'}
+                  onClick={() => navigate('/login')}
                 >
                   Login
                 </Button>
                 <Button 
                   className="bg-white text-purple-600 hover:bg-gray-100"
-                  onClick={() => window.location.href = '/register'}
+                  onClick={() => navigate('/register')}
                 >
                   Sign Up
                 </Button>
@@ -170,7 +173,7 @@ const Index = () => {
           <Button 
             size="lg" 
             className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8 py-3"
-            onClick={() => window.location.href = isAuthenticated ? '/dashboard' : '/register'}
+            onClick={() => navigate(isAuthenticated ? '/dashboard' : '/register')}
           >
             {isAuthenticated ? 'Go to Dashboard' : 'Create Free Account'}
           </Button>
