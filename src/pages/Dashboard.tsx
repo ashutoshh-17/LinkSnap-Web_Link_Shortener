@@ -15,11 +15,14 @@ const Dashboard = () => {
   const [links, setLinks] = useState<ShortenedUrl[]>([]);
   const [fetchingLinks, setFetchingLinks] = useState(true);
   const { toast } = useToast();
-  const { user, token, logout, isAuthenticated } = useAuth();
+  const { user, token, logout, isAuthenticated, isLoading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Wait for auth to finish loading before checking authentication
+    if (authLoading) return;
+    
     if (!isAuthenticated) {
       navigate('/login');
       return;
@@ -31,7 +34,7 @@ const Dashboard = () => {
     }
 
     fetchUserLinks();
-  }, [searchParams, isAuthenticated, token, navigate]);
+  }, [searchParams, isAuthenticated, token, navigate, authLoading]);
 
   const fetchUserLinks = async () => {
     if (!token) return;
@@ -97,6 +100,15 @@ const Dashboard = () => {
     });
     navigate('/');
   };
+
+  // Show loading while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-blue-600 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;
